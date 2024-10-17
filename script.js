@@ -342,9 +342,17 @@ item_positions.forEach((position, i) => {
 // Let's go!
 study.run()
 document.addEventListener('DOMContentLoaded', function () {
+    // Warten, bis das Experiment endet
     study.on('end', () => {
+        console.log("Experiment beendet, Daten werden gesammelt.");
+        
+        // Exportiere die Daten als JSON
         let results = study.options.datastore.exportJson();
+        
+        // Füge die gesammelten Daten in das versteckte Formularfeld ein
         document.getElementById('labjs-data').value = results;
+        
+        // Sende das Formular an Netlify
         document.forms['participant-data'].submit();
     });
 });
