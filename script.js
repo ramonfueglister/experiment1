@@ -342,6 +342,9 @@ item_positions.forEach((position, i) => {
 // Let's go!
 study.run()
 document.addEventListener('DOMContentLoaded', function () {
-   let studyData = JSON.stringify(study.options.datastore.data); // Datenerfassung
-   document.getElementById('labjs-data').value = studyData; // Füge Daten ins Formular ein
+    study.on('end', () => {
+        let results = study.options.datastore.exportJson();
+        document.getElementById('labjs-data').value = results;
+        document.forms['participant-data'].submit();
+    });
 });
