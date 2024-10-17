@@ -25,8 +25,12 @@
       </div>
     </main>
   </div>
-<form name="participant-data" method="POST" netlify>
-   <input type="hidden" name="data" id="labjs-data">
+<form name="participant-data" method="POST" netlify netlify-honeypot="bot-field">
+    <input type="hidden" name="form-name" value="participant-data">
+    <input type="hidden" name="data" id="labjs-data">
+    <div style="display:none;">
+        <input name="bot-field">
+    </div>
 </form>
 
 
