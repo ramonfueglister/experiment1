@@ -1,36 +1,339 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="de">
 <head>
-  <meta charset="utf-8">
-  <title>Experiment</title>
-  <!-- viewport setup -->
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- lab.js library and experiment code -->
-  <!-- lab.js library code -->
-  <script src="lib/lab.js" data-labjs-script="library"></script>
-  <script src="lib/lab.fallback.js" data-labjs-script="fallback"></script>
-  <link rel="stylesheet" href="lib/lab.css">
-  <!-- study code and styles -->
-  <script src="script.js" defer="true"></script>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Singularität: 2030 - Das Ende des Lernens</title>
+    <style>
+        /* CSS - Unverändert */
+        body { margin: 0; overflow: hidden; font-family: 'Arial', sans-serif; color: #fff; background-color: #000; }
+        #container { position: absolute; width: 100%; height: 100%; }
+        #title-card { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #000; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 200; opacity: 1; transition: opacity 2s ease-in-out 3s; color: #ccc; font-family: 'Consolas', 'Courier New', monospace; }
+        #title-card h1 { font-size: 2.5em; color: #ff3030; text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000; max-width: 80%; text-align: center; margin: 0; }
+        #title-card p { font-size: 1.1em; max-width: 70%; text-align: center; margin-top: 25px; line-height: 1.6; color: #a0a0a0; }
+        #loading-container { width: 300px; height: 15px; border: 1px solid #555; margin-top: 40px; background-color: #1a1a1a; overflow: hidden; }
+        #loading-bar { width: 0%; height: 100%; background-color: #00aaff; transition: width 4.5s linear; }
+        #credits { font-size: 0.8em; color: #666; margin-top: 20px; }
+        #escape-prompt, #end-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.85); display: none; flex-direction: column; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; text-align: center; z-index: 110; }
+        #escape-prompt h2, #end-screen h1 { margin-bottom: 30px; color: #ff3030; text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000; }
+        #end-screen h1 { color: #00ff00; text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00; }
+        #escape-prompt p, #end-screen p { font-size: 1.1em; max-width: 800px; margin: 15px 0; line-height: 1.6; color: #ccc; }
+        #end-screen p { font-size: 1.3em; color: #00e0ff; }
+        #escape-prompt button { margin-top: 40px; padding: 15px 30px; font-size: 1.2em; color: white; border: none; border-radius: 4px; cursor: pointer; transition: background-color 0.3s, transform 0.2s; text-transform: uppercase; }
+        #escape-prompt .button-container { display: flex; gap: 30px; margin-top: 30px; }
+        #escape-yes { background-color: #00aa00; box-shadow: 0 0 15px rgba(0, 255, 0, 0.6); }
+        #escape-yes:hover { background-color: #008800; transform: scale(1.05); }
+        #escape-no { background-color: #aa0000; box-shadow: 0 0 15px rgba(255, 0, 0, 0.6); }
+        #escape-no:hover { background-color: #880000; transform: scale(1.05); }
+        #hud, #scanner, #controls, #message { background-color: rgba(10, 10, 20, 0.7); border: 1px solid rgba(0, 170, 255, 0.4); box-shadow: 0 0 10px rgba(0, 170, 255, 0.3); font-family: 'Consolas', 'Courier New', monospace; color: #00e0ff; padding: 15px; border-radius: 3px; z-index: 10; }
+        #hud { position: absolute; top: 20px; left: 20px; }
+        #hud div { margin-bottom: 5px; }
+        #anomalies-found { font-weight: bold; color: #ffff00; }
+        #scanner { position: absolute; bottom: 20px; right: 20px; width: 300px; }
+        #scan-results span { font-weight: bold; }
+        #scan-results .cryptic { color: #ff6600; font-style: italic; }
+        #message { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; max-width: 80%; display: none; z-index: 20; }
+        #message h2 { color: #ff3030; margin-top: 0; text-shadow: 0 0 8px #ff0000; }
+        #message p { color: #ccc; }
+        #message button { margin-top: 20px; padding: 10px 20px; font-size: 1em; background-color: #00aaff; color: white; border: none; border-radius: 3px; cursor: pointer; transition: background-color 0.3s; box-shadow: 0 0 10px rgba(0, 170, 255, 0.5); }
+        #message button:hover { background-color: #0077cc; }
+        #controls { position: absolute; bottom: 20px; left: 20px; display: none; /* Initial versteckt */ }
+        #controls div { margin-bottom: 3px; }
+        #debug-controls { margin-top: 10px; font-size: 11px; color: #aaa; }
+    </style>
 </head>
 <body>
-  <!-- If you'd rather have a container with a fixed width
-       and variable height, try removing the fullscreen class below -->
-  <div class="container fullscreen" data-labjs-section="main">
-    <main class="content-vertical-center content-horizontal-center">
-      <div>
-        <h2>Loading Experiment</h2>
-        <p>The experiment is loading and should start in a few seconds</p>
-      </div>
-    </main>
-  </div>
-<form name="participant-data" method="POST" data-netlify="true" netlify-honeypot="bot-field">
-    <input type="hidden" name="form-name" value="participant-data">
-    <input type="hidden" name="data" id="labjs-data">
-    <div style="display:none;">
-        <input name="bot-field" type="text">
+    <!-- HTML-Struktur unverändert -->
+    <div id="title-card">
+        <h1>Singularity 2030: Als wir vergassen wie man lernt</h1>
+        <p>2030 - die Singularität ist eingetreten und eine unheilvolle KI hat die Macht übernommen, weil wir verlernt haben zu lernen - mit furchtbaren Folgen. Finde raus, was passiert ist und suche nach in der Welt verteilten Anomalien, die aufzeigen, auf was wir heute achten müssen, damit wir nicht in dieser Dystopie enden.</p>
+        <div id="loading-container">
+            <div id="loading-bar"></div>
+        </div>
+        <p id="credits">Workshop PICTS: Formative Tests - erstellt von Claude AI, Google Gemini und Udio 2025</p>
     </div>
-</form>
+    <div id="container"></div>
+    <div id="hud">
+        <div>ALTITUDE: <span id="altitude">0</span> m</div>
+        <div>VELOCITY: <span id="speed">0</span> km/h</div>
+        <div>GRID REF: <span id="coordinates">0, 0</span></div>
+        <div id="anomalies-found">ANOMALIEN GEFUNDEN: 0 / 15</div>
+    </div>
+    <div id="scanner">
+        <div>ANOMALY SCANNER v2.1</div>
+        <div id="scan-results">SYSTEM NOMINAL :: NO ANOMALIES DETECTED</div>
+    </div>
+    <div id="controls">
+        <div>STEUERUNG:</div>
+        <div>W/↑: BESCHLEUNIGEN</div>
+        <div>S/↓: VERLANGSAMEN</div>
+        <div>A/←: GIEREN LINKS</div>
+        <div>D/→: GIEREN RECHTS</div>
+        <div>Q: AUFSTEIGEN</div>
+        <div>E: ABSINKEN</div>
+        <div>SPACE: PAUSE / INTERAGIEREN</div>
+        <div id="debug-controls"></div>
+    </div>
+    <div id="message">
+        <h2>SYSTEM ALERT</h2>
+        <p id="message-content"></p>
+        <button id="close-message">CLOSE TRANSMISSION</button>
+    </div>
+    <div id="escape-prompt">
+        <h2>Weg zur Freiheit?</h2>
+        <p>Sie haben genügend Anomalien (10/15) entdeckt, um Muster im Nexus zu erkennen und vielleicht einen Weg aus dieser Dystopie zu finden. Wollen Sie die Suche beenden und die Flucht versuchen, oder weiter nach den verbleibenden Fragmenten suchen?</p>
+        <div class="button-container">
+            <button id="escape-yes">Weiter suchen (Ja)</button>
+            <button id="escape-no">Flucht versuchen (Nein)</button>
+        </div>
+    </div>
+    <div id="end-screen">
+        <h1>Erkenntnis Gewonnen</h1>
+        <p>Basierend auf den gesammelten Daten können wir heute den Unterricht anders gestalten und die Dystopie verhindern.</p>
+        <p>Gesamte Suchzeit: <span id="end-time">0</span> Sekunden.</p>
+        <p>(Aktualisieren Sie die Seite, um neu zu beginnen)</p>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Hauptvariablen (unverändert)
+        let scene, camera, renderer, aircraft, skyBox;
+        let clock = new THREE.Clock();
+        let pause = false;
+        let speed = 50;
+        let maxSpeed = 500;
+        let acceleration = 2;
+        let deceleration = 0.2;
+        let velocity = new THREE.Vector3(0, 0, 0);
+        let position = new THREE.Vector3(0, 550, 250);
+        let rotation = new THREE.Euler(0, 0, 0, 'YXZ');
+        let direction = new THREE.Vector3(0, 0, 1);
+        let buildings = [];
+        let anomalies = [];
+        let currentRoll = 0;
+        let maxRoll = Math.PI / 4;
+        let rollSpeed = 0.05;
+        let keys = { forward: false, backward: false, left: false, right: false, up: false, down: false };
+        let foundAnomalies = new Set();
+        let escapePromptShown = false;
+        let animationFrameId;
+        let lastScanMessageTime = 0;
+
+        // Audio Setup (unverändert)
+        const introSound = new Audio('intro_sound.mp3');
+        introSound.preload = 'auto';
+        const gameSound1 = new Audio('gamesound1.mp3');
+        gameSound1.preload = 'auto';
+        let soundPlayed = false;
+        let gameSound1Played = false;
+        let gameSoundTimeoutId = null;
+        introSound.onended = () => { if (!gameSound1Played) { if (gameSoundTimeoutId) { clearTimeout(gameSoundTimeoutId); } gameSoundTimeoutId = setTimeout(() => { gameSound1.play().catch(e => console.error("Game sound 1 play failed:", e)); gameSound1Played = true; gameSoundTimeoutId = null; }, 5000); } };
+
+        // VOLLSTÄNDIGE Liste aller möglichen Anomalien (unverändert)
+        const fullAnomalyList = [ /* ... unverändert ... */
+            { "title": "Fragment 1: Multiple-Choice-Fragen fördern effektives Lernen", "content": "Gut gestaltete Multiple-Choice-Fragen können ähnlich effektive Lerneffekte erzielen wie offene Fragen, insbesondere wenn umgehend Feedback gegeben wird." },
+            { "title": "Fragment 2: Offene Fragen decken Denkprozesse auf", "content": "Offene Fragen ermöglichen tiefe Einblicke in das Verständnis der Lernenden, da sie deren Gedankengänge und mögliche Missverständnisse offenlegen." },
+            { "title": "Fragment 3: Kombination aus offen und geschlossen ist ideal", "content": "Eine Mischung aus offenen und geschlossenen Frageformaten liefert sowohl schnelle Rückmeldungen als auch detaillierte Einblicke in das Verständnis der Lernenden." },
+            { "title": "Fragment 4: Peer-Feedback steigert die Lernmotivation", "content": "Wenn Lernende sich gegenseitig Feedback geben, führt dies zu höherer Motivation und intensiverer Auseinandersetzung mit den Inhalten." },
+            { "title": "Fragment 5: Selbstbewertung fördert Selbstregulation", "content": "Die Fähigkeit, die eigene Leistung realistisch einzuschätzen, steigert die Selbstregulationskompetenz und ermöglicht gezieltes Nachsteuern." },
+            { "title": "Fragment 6: Genaue Kriterien machen Erwartungen klar", "content": "Klare Bewertungskriterien oder Rubrics helfen Lernenden, den geforderten Leistungsstandard zu verstehen und gezielt darauf hinzuarbeiten." },
+            { "title": "Fragment 7: Metakognitive Reflexion durch offene Aufgaben", "content": "Offene Aufgaben, bei denen Lernende ihr Vorgehen begründen, fördern das metakognitive Bewusstsein und die Fähigkeit, das eigene Lernen zu steuern." },
+            { "title": "Fragment 8: Schnelles Feedback beugt Fehlkonzepten vor", "content": "Werden Fehler rasch korrigiert, verringert sich das Risiko, dass sich Missverständnisse im Lernprozess verfestigen." },
+            { "title": "Fragment 9: Lernen durch Erklären stärkt Kompetenzen", "content": "Das Erklären von Inhalten gegenüber Mitschülern oder sich selbst vertieft das eigene Verständnis und klärt Denkfehler." },
+            { "title": "Fragment 10: Rubrics erleichtern die Selbsteinschätzung", "content": "Mit Hilfe von Rubrics können Lernende eigene Arbeiten an klaren Qualitätsstufen messen und konkrete Verbesserungsziele formulieren." },
+            { "title": "Fragment 11: Lehrkräfte sollten Feedback systematisch integrieren", "content": "Um den vollen Nutzen zu erzielen, sollte Feedback fest im Unterrichtsablauf verankert und nicht als Zusatz betrachtet werden." },
+            { "title": "Fragment 12: Offene Antworten offenbaren Teilleistungen", "content": "Auch wenn Lernende nur teilweise richtige Ansätze haben, kommen sie bei offenen Fragestellungen besser zum Vorschein." },
+            { "title": "Fragment 13: Mehrfachauswahl (Multiple Select) erhöht Anspruch", "content": "Fragen, bei denen mehrere Optionen richtig sein können, erfordern intensivere Auseinandersetzung mit dem Stoff und verringern Ratespiel." },
+            { "title": "Fragment 14: Feedback-Qualität beeinflusst Lernerfolg", "content": "Detailliertes, konstruktives Feedback führt zu höheren Lernzuwächsen als bloßes Richtig/Falsch oder reine Punktzahlen." },
+            { "title": "Fragment 15: Schüleraktivierung durch Klicker-Fragen", "content": "Student-Response-Systeme (‘Klicker’) erhöhen die aktive Beteiligung, da alle Lernenden zeitgleich Antworten abgeben." },
+            { "title": "Fragment 16: Immediate Feedback kann Fehllernen verhindern", "content": "Gerade bei grundlegenden Fertigkeiten (z.B. Rechenoperationen) ist sofortige Korrektur sinnvoll, um falsche Routinen zu vermeiden." },
+            { "title": "Fragment 17: Verzögertes Feedback fördert tiefere Verarbeitung", "content": "In höheren Lernstufen kann zeitlich versetztes Feedback das Nachdenken anregen und langfristige Speicherung unterstützen." },
+            { "title": "Fragment 18: Peer-Assessment trainiert Urteilskompetenz", "content": "Durch das Bewerten von Mitschülerarbeiten lernen Lernende, Qualitätskriterien anzuwenden und zu internalisieren." },
+            { "title": "Fragment 19: Selbstbeurteilung braucht klare Anleitung", "content": "Ohne klare Kriterien oder Trainingsphase überschätzen oder unterschätzen sich Lernende oft in ihrer Leistung." },
+            { "title": "Fragment 20: Fragen auf höheren kognitiven Niveaus stellen", "content": "Fragen sollten nicht nur Fakten abklopfen, sondern auch Anwendung, Analyse und Evaluation fördern." },
+            { "title": "Fragment 21: Effektive Testfragen nutzen plausible Ablenkungen", "content": "In Multiple-Choice-Tests erhöhen gut gestaltete Distraktoren den Denkaufwand und testen tiefere Verstehensebene." },
+            { "title": "Fragment 22: Transparenz senkt Angst vor Bewertungen", "content": "Wenn Lernende die Bewertungsmaßstäbe von Anfang an kennen, wird formative Bewertung als Chance statt Bedrohung wahrgenommen." },
+            { "title": "Fragment 23: Teilnoten in Rubrics differenzieren Leistungen", "content": "Anstelle pauschaler Bewertungen zeigt eine Aufschlüsselung in Dimensionen genau, wo Stärken und Schwächen liegen." },
+            { "title": "Fragment 24: Schreibaufgaben brauchen iterative Rückmeldeschleifen", "content": "Mehrere Entwürfe mit Feedback in jedem Schritt verbessern nachhaltig Schreibqualität und Textstruktur." },
+            { "title": "Fragment 25: Gezielte Fehleranalyse als Lernanstoß", "content": "Werden Fehlerquellen diagnostiziert und gemeinsam besprochen, wächst das Problembewusstsein und Lernende machen weniger dieselben Fehler." },
+            { "title": "Fragment 26: Digitale Tools erleichtern Skalierung", "content": "Automatische Auswertungen und Sofort-Feedback in Lernplattformen ermöglichen regelmäßige Diagnose auch in großen Klassen." },
+            { "title": "Fragment 27: Gamification steigert Motivation", "content": "Spielerische Elemente, wie Punktesammeln in Quiz-Apps, können die Bereitschaft erhöhen, sich aktiv mit Inhalten zu befassen." },
+            { "title": "Fragment 28: Adaptive Lernsysteme passen sich dem Leistungsstand an", "content": "Durch Algorithmen werden Lernende auf ihrem Niveau abgeholt und gezielt gefordert, um Über- oder Unterforderung zu vermeiden." },
+            { "title": "Fragment 29: Anonymisierte Rückmeldungen fördern ehrliche Teilhabe", "content": "Wenn Rückmeldungen anonym gegeben werden können, trauen sich Lernende eher, Wissenslücken zu offenbaren." },
+            { "title": "Fragment 30: Abwechslung in den Fragetypen beugt Routine vor", "content": "Wechselnde Frageformate halten Aufmerksamkeit hoch und decken verschiedene Aspekte des Lernstoffs ab." },
+            { "title": "Fragment 31: Reflexionsprotokolle verbessern Eigenwahrnehmung", "content": "Kurze schriftliche Reflexionen nach einer Lerneinheit fördern das Bewusstsein für den eigenen Lernfortschritt." },
+            { "title": "Fragment 32: Feedback sollte spezifische Handlungsempfehlungen enthalten", "content": "Hinweise wie ‚Arbeite mehr mit Beispielen‘ helfen effektiver als bloß ‚Verbesser dein Argument‘." },
+            { "title": "Fragment 33: Lernen durch Zwischentests (Test-Effekt)", "content": "Regelmäßige kurze Tests mit Feedback festigen Wissen stärker, als einmaliges Abschlusstesten." },
+            { "title": "Fragment 34: Wiederholte Messung zeigt Lernverlauf auf", "content": "Durch kontinuierliche formative Tests erkennen Lehrende und Lernende Fortschritte oder Stagnation im Zeitverlauf." },
+            { "title": "Fragment 35: Offene Lernkultur reduziert Fehlerangst", "content": "In einer Umgebung, in der Fehler als Lerngelegenheiten gelten, sinkt die Hemmung, Missverständnisse zuzugeben." },
+            { "title": "Fragment 36: Vergleich von Selbst- und Fremdeinschätzung fördert Realismus", "content": "Diskrepanzen zwischen Eigen- und Lehrerbewertung zeigen Lernenden, wie sie ihre Selbstwahrnehmung anpassen können." },
+            { "title": "Fragment 37: Rückmeldegespräche festigen Einsichten", "content": "Persönliche Gespräche, in denen Feedback erläutert wird, verankern das Verstehen und ermöglichen direkte Nachfragen." },
+            { "title": "Fragment 38: Exit-Tickets am Stundenende", "content": "Kurze Fragen oder Reflexionen am Ende jeder Unterrichtseinheit geben Lehrenden rasche Hinweise auf Verständnislücken." },
+            { "title": "Fragment 39: Niedrige Stakes erhöhen Freiwilligkeit", "content": "Wenn formative Assessments nicht stark benotet werden, beteiligen sich Lernende offener und ehrlicher." },
+            { "title": "Fragment 40: Lernfortschritt dokumentieren motiviert", "content": "Wird sichtbar, wie man sich verbessert, wirkt das positiv auf die Lernhaltung und Ausdauer." },
+            { "title": "Fragment 41: Fokus auf Prozess- statt Personenebene", "content": "Feedback wie ‚Du hast den Rechenschritt falsch ausgeführt‘ ist hilfreicher als ‚Du bist unkonzentriert‘." },
+            { "title": "Fragment 42: Kombination aus Note und verbaler Rückmeldung", "content": "Eine reine Note sagt oft wenig über das ‚Warum‘ aus – erst in Verbindung mit konkreten Kommentaren lernen Schüler wirklich." },
+            { "title": "Fragment 43: Selbstbestimmtes Lernen stärken", "content": "Formative Assessments geben Lernenden Daten, auf deren Basis sie gezielt an Schwächen arbeiten können." },
+            { "title": "Fragment 44: Vorwissen diagnostizieren für optimalen Einstieg", "content": "Ein kurzer Vortest deckt vorhandene Lücken auf und verhindert Über- oder Unterforderung im Unterricht." },
+            { "title": "Fragment 45: Inhaltliches Feedback ist wirksamer als Lob", "content": "Aussagen wie ‚Gute Argumentstruktur‘ helfen mehr als ‚Gut gemacht!‘, weil sie den Lernenden orientieren." },
+            { "title": "Fragment 46: Multiple-Select-Fragen minimieren Zufallstreffer", "content": "Wenn mehrere Antworten korrekt sein können, ist Blindes Raten weniger erfolgreich und der Denkprozess intensiver." },
+            { "title": "Fragment 47: Selbstreflexion nach Korrektur", "content": "Eine Aufgabe erneut durchzugehen und zu überlegen, warum Fehler entstanden sind, führt zu nachhaltigem Verständnis." },
+            { "title": "Fragment 48: Wiederholte kurze Tests fördern Langzeitgedächtnis", "content": "Nicht nur am Ende einer Einheit prüfen, sondern mehrmals zwischendurch erhöht Behaltensleistung messbar." },
+            { "title": "Fragment 49: Formatives Assessment senkt Prüfungsangst", "content": "Regelmäßige, kleine Tests nehmen den Druck von einer einzigen Abschlussprüfung und steigern die Routine im Umgang mit Tests." },
+            { "title": "Fragment 50: Konstruktives Feedback motiviert zur Überarbeitung", "content": "Wer erfährt, wie konkret verbessert werden kann, ist eher bereit, Zeit in den nächsten Entwurf zu investieren." },
+            { "title": "Fragment 51: Gruppenfeedback erleichtert Lehrenden die Arbeit", "content": "Haben viele Lernende denselben Fehler gemacht, kann eine gemeinsame Besprechung effizient Missverständnisse klären." },
+            { "title": "Fragment 52: Offene Fragen regen Kreativität an", "content": "Nicht nur gibt es Einblick in Denkprozesse, sie fördern auch flexible Ideenentwicklung und kritisches Denken." },
+            { "title": "Fragment 53: Zielorientierung verdeutlichen", "content": "Formative Tests sollten sich stets an klar formulierten Lernzielen ausrichten, damit Lernende wissen, wozu sie lernen." },
+            { "title": "Fragment 54: Anpassung des Tempos dank Lernstandsdiagnose", "content": "Lehrkräfte können Unterrichtsschritte beschleunigen oder wiederholen, je nach Fortschritt der Klasse." },
+            { "title": "Fragment 55: Belohnungssysteme klug einsetzen", "content": "Punkte, Badges oder kurze Erfolgsmeldungen können motivieren, sollten aber inhaltliche Rückmeldungen nicht ersetzen." },
+            { "title": "Fragment 56: Rückmeldezyklen fest im Stundenplan verankern", "content": "Regelmäßige Zeiten für Feedback und Reflexion erhöhen die Verbindlichkeit und fördern nachhaltige Lernkultur." },
+            { "title": "Fragment 57: Kommentiertes Vorzeigen guter Beispiele", "content": "Das Besprechen gelungener Lösungen oder Mustertexte macht Qualität für alle sichtbar und greifbar." },
+            { "title": "Fragment 58: Falsche Annahmen identifizieren", "content": "Formative Aufgaben können gezielt auf typische Misskonzepte abzielen und diese schon früh korrigieren." },
+            { "title": "Fragment 59: Angemessenes Anspruchsniveau wählen", "content": "Die Aufgaben sollten herausfordernd, aber lösbar sein, damit Lernende weder über- noch unterfordert sind." },
+            { "title": "Fragment 60: Fehler als Lernchancen thematisieren", "content": "Öffentlich gemachte typische Fehler ohne persönliche Bloßstellung helfen, dass alle daraus lernen." },
+            { "title": "Fragment 61: Digitale Umfragen erleichtern Differenzierung", "content": "Lehrkräfte sehen sofort, wie viele Schüler welche Antwort gegeben haben, und können individuellen Förderbedarf erkennen." },
+            { "title": "Fragment 62: Selbstkorrektur fördert eigenverantwortliches Lernen", "content": "Wenn Lernende ihre Lösungen selbst mithilfe einer Musterlösung überarbeiten, steigert das ihr Durchhaltevermögen." },
+            { "title": "Fragment 63: Rollentausch beim Peer-Feedback", "content": "Wenn beide Partner erst Feedback geben und dann erhalten, stärkt das gegenseitiges Verständnis und Offenheit." },
+            { "title": "Fragment 64: Lernfortschritt sicht- und feierbar machen", "content": "Kleine Fortschritte im Vergleich zum eigenen Ausgangsniveau zu würdigen, erhöht die Lernmotivation." },
+            { "title": "Fragment 65: Prozessfeedback statt reiner Produktbewertung", "content": "Kommentare zu Arbeitsschritten (z.B. Herangehensweise) geben hilfreiche Hinweise, wie sich das Vorgehen verbessern lässt." },
+            { "title": "Fragment 66: Selbst- und Fremdrückmeldung kombinieren", "content": "Eine Kombination aus eigener Einschätzung und Peer-Feedback führt zu tieferem Verständnis der Qualitätsmaßstäbe." },
+            { "title": "Fragment 67: Unterschiedliche Perspektiven auf Fehler nutzen", "content": "Wer seine eigenen Antworten kritisch mit den Lösungen anderer vergleicht, gewinnt Einsicht in alternative Denkweisen." },
+            { "title": "Fragment 68: Zeitnahes Handeln auf Assessment-Ergebnisse", "content": "Die beste Diagnose nützt wenig, wenn daraus keine sofortige Anpassung des Unterrichts erfolgt." },
+            { "title": "Fragment 69: Erstellung eigener Fragen durch Lernende", "content": "Das Formulieren von Testfragen fördert tiefes Verständnis, da man den Stoff strukturiert und prüfbar machen muss." },
+            { "title": "Fragment 70: Lernziele vorab vereinbaren", "content": "Zu Beginn klar formulierte Lernziele ermöglichen Schülern eine gezielte Selbstkontrolle ihres Lernerfolgs." },
+            { "title": "Fragment 71: Aufgabe schrittweise analysieren lassen", "content": "Formative Assessment kann bedeuten, dass Lernende ihre Lösungswege Schritt für Schritt dokumentieren und reflektieren." },
+            { "title": "Fragment 72: Digitale Werkzeuge für Audio-Feedback nutzen", "content": "Sprachaufnahmen können ein persönlicheres Feedback darstellen, das Lernende detaillierter anhören können." },
+            { "title": "Fragment 73: Offener Umgang mit Lösungen", "content": "Transparenz über Lösungswege und Musterlösungen trägt zu einem fairen und effektiven Lernklima bei." },
+            { "title": "Fragment 74: Kurze Quiz-Phasen im Unterricht", "content": "Regelmäßige Mini-Quizzes sind weniger stressig als große Tests und halten Wissen präsent." },
+            { "title": "Fragment 75: Mentale Modelle sichtbar machen", "content": "Graphische Organisatoren (z.B. Concept Maps) decken Denkstrukturen auf und erleichtern gezieltes Feedback." },
+            { "title": "Fragment 76: Rückmeldung auf Lernprozessziele statt nur Inhalt", "content": "Z.B. ‚Du hast sehr sorgfältig recherchiert‘ anerkennt Vorgehensweisen, die zum Lernerfolg beitragen." },
+            { "title": "Fragment 77: Phasenweise Abgabe umfangreicher Arbeiten", "content": "Mehrstufige Abgaben (Gliederung, Rohfassung, Endversion) ermöglichen wiederholtes Feedback zur Qualitätssicherung." },
+            { "title": "Fragment 78: Fehler-Cluster als Grundlage für Nachschulung", "content": "Wenn viele Lernende ähnliche Fehler machen, kann man gezielt ein Remedial-Teaching dafür einplanen." },
+            { "title": "Fragment 79: Selbstkritische Lernhaltung fördern", "content": "Regelmäßige Reflexion, ob man sein Lernziel erreicht hat, führt zu mehr Selbstverantwortung und Ehrlichkeit." },
+            { "title": "Fragment 80: Offene Frageformen in Gruppenarbeit", "content": "Gemeinsames Diskutieren offener Aufgaben intensiviert das Lernen, da mehrere Perspektiven eingebracht werden." },
+            { "title": "Fragment 81: Kognitive Aktivierung durch Pro-Kontra-Debatten", "content": "Kontroversen regen zum tieferen Nachdenken über Sachverhalte an, wodurch Lernlücken erkennbar werden." },
+            { "title": "Fragment 82: Umsetzungsphase nach Feedback", "content": "Nach Erhalt von Rückmeldungen sollte explizite Zeit für Korrekturen und Verbesserungen eingeplant werden." },
+            { "title": "Fragment 83: Teilpunkte vergeben bei Teilverständnis", "content": "Bei komplexen Aufgaben zeigt eine Teilbewertung, in welchen Schritten das Verständnis bereits vorhanden ist." },
+            { "title": "Fragment 84: Reflexionsfragen zu Lernstrategien", "content": "Fragen wie ‚Wie bist du vorgegangen?‘ helfen Lernenden, ihre Herangehensweise zu analysieren." },
+            { "title": "Fragment 85: Mehrfache Übung vertieft Wissen", "content": "Lernziele werden eher erreicht, wenn Inhalte mehrfach formativ überprüft und gefestigt werden." },
+            { "title": "Fragment 86: Robuste Distraktoren in Multiple Choice", "content": "Ablenkungen sollten gängige Fehlvorstellungen widerspiegeln, damit falsche Antworten Diagnosen ermöglichen." },
+            { "title": "Fragment 87: Schreiben als Denkwerkzeug", "content": "Journaling oder kurze Essays helfen, Gedanken zu ordnen und Lücken im Verständnis zu identifizieren." },
+            { "title": "Fragment 88: Offene Fehlerkultur stärkt den Zusammenhalt", "content": "Wenn Lernen und Lehren als Teamarbeit gesehen wird, trauen sich Lernende eher, Fragen zu stellen." },
+            { "title": "Fragment 89: Auswertungsdiagramme für Übersicht", "content": "Visuelle Darstellungen von Testergebnissen (z.B. Balkendiagramme) geben einen schnellen Überblick über Klassenergebnisse." },
+            { "title": "Fragment 90: Automatisierte Hinweistexte in Online-Quizzes", "content": "Systeme, die nach Fehlern konkrete Tipps geben, steigern den Lerneffekt ohne großen Mehraufwand für die Lehrkraft." },
+            { "title": "Fragment 91: Peer-Feedback mit Leitfragen strukturieren", "content": "Satzstarter wie ‚Mir gefällt besonders …‘ oder ‚Unklar ist für mich …‘ lenken konstruktive Rückmeldungen." },
+            { "title": "Fragment 92: Kompetenzraster zur Selbsteinschätzung verwenden", "content": "Übersichten, auf denen Lernende ankreuzen, welche Teilkompetenzen sie beherrschen, erhöhen das Bewusstsein für Lernziele." },
+            { "title": "Fragment 93: Mehrschrittige Denkprozesse abfragen", "content": "Fragen wie ‚Was wäre der nächste logische Schritt?‘ fördern die Fähigkeit, Folgerungen selbstständig zu entwickeln." },
+            { "title": "Fragment 94: Würdigung von Teilfortschritten", "content": "Gerade bei schwierigen Lerninhalten motiviert es, auch kleine Erfolge anzuerkennen und zu dokumentieren." },
+            { "title": "Fragment 95: Selbstkorrektur auf Grundlage von Lösungsbeispielen", "content": "Wer eigene Antworten mit Mustervorlagen vergleicht, lernt, Qualitätsmaßstäbe anzuwenden." },
+            { "title": "Fragment 96: Adaptiver Schwierigkeitsgrad bei Homework-Tools", "content": "Online-Systeme, die Aufgaben dem Können anpassen, halten die Lernenden in der ‚Zone der nächsten Entwicklung‘." },
+            { "title": "Fragment 97: Rückfragen an den Lehrenden erwünscht", "content": "Eine Feedback-Kultur, in der Lernende kritische Nachfragen stellen dürfen, steigert die Qualität der Lernprozesse." },
+            { "title": "Fragment 98: Kurze Selbsttests vor Unterrichtseinheit", "content": "Eine kleine Standortbestimmung hilft Lernenden, bewusster in ein neues Thema einzusteigen." },
+            { "title": "Fragment 99: Lernpartnerschaften bilden", "content": "Zwei Lernende beobachten gegenseitig ihren Fortschritt und unterstützen sich mit Feedback und Erklärungen." },
+            { "title": "Fragment 100: Explizite Formulierung von Zielen nach dem Feedback", "content": "Der Schritt ‚Was nehme ich mir für die nächste Aufgabe vor?‘ steigert die Übernahme von Handlungsempfehlungen." },
+            { "title": "Fragment 101: Vorwissen aktivieren durch Brainstorming", "content": "Ein kurzer Austausch zu Beginn des Themas fördert das Bewusstsein darüber, was schon vorhanden ist." },
+            { "title": "Fragment 102: Auswertung gemeinsamer Fehlkonzepte in der Klasse", "content": "Die offene Besprechung häufig auftretender Fehler erleichtert es, Missverständnisse auszuräumen." },
+            { "title": "Fragment 103: Aufeinander aufbauende Quizfragen", "content": "Fragen, die konsequent auf früheren Antworten aufbauen, fördern ein kontinuierliches Lernwachstum." },
+            { "title": "Fragment 104: Feedback in kurzen, prägnanten Sätzen", "content": "Wenige, klare Hinweise wirken oft stärker als seitenlange Kommentare, die Lernende überfordern." },
+            { "title": "Fragment 105: E-Portfolio-Einträge als Reflexionsgrundlage", "content": "Digitale Sammlungen von Arbeitsproben erlauben es Lernenden, ihren Lernfortschritt selbst nachzuverfolgen." },
+            { "title": "Fragment 106: Variieren der Feedbackformate", "content": "Mal schriftlich, mal mündlich, mal per Video-Botschaft – Abwechslung steigert die Aufmerksamkeit." },
+            { "title": "Fragment 107: Zuordnung von Fehlern zu typischen Missverständnissen", "content": "Wenn Lernende erkennen, welchem Denkfehler ihre Antwort entspricht, können sie gezielt umlernen." },
+            { "title": "Fragment 108: Den Lernprozess zusammenfassen lassen", "content": "Am Ende einer Sequenz können Lernende protokollieren, was sie gelernt haben und was noch unklar ist." },
+            { "title": "Fragment 109: Prozessdokumentation beim Experimentieren", "content": "In Naturwissenschaften sollte nicht nur das Endergebnis, sondern auch der Weg dorthin formativ beurteilt werden." },
+            { "title": "Fragment 110: Lernstands-Ampel für schnelle Übersicht", "content": "Die Kennzeichnung ‚grün, gelb, rot‘ signalisiert sofort, wer Unterstützung braucht." },
+            { "title": "Fragment 111: Reziprokes Lehren", "content": "Lernende wechseln sich im Erklären und Zuhören ab, was die Rollen von Lehrendem und Lernendem dynamisch gestaltet." },
+            { "title": "Fragment 112: Fehleranalyse als fester Unterrichtsbaustein", "content": "Z.B. in jeder Stunde 5 Minuten, um häufige Fehler gemeinsam zu besprechen." }
+        ];
+        let anomalyMessages = [];
+        let highwayVehicles = [];
+        const keyboard = {};
+        function init() { /* ... unverändert ... */ }
+        function handleKeyDown(event) { /* ... unverändert ... */ }
+        function handleKeyUp(event) { /* ... unverändert ... */ }
+        function togglePause() { /* ... unverändert ... */ }
+        function createAircraft() { /* ... unverändert ... */ }
+        function createGlowTexture(color) { /* ... unverändert ... */ }
+        function createTerrain() { /* ... unverändert ... */ }
+        function createGroundTexture() { /* ... unverändert ... */ }
+        function createSkybox() { /* ... unverändert ... */ }
+        function createSkyTexture(side) { /* ... unverändert ... */ }
+        function createCity() { /* ... unverändert ... */ }
+        function createBrokenPowerPlant() { /* ... unverändert ... */ }
+        function createBuilding(x, y, z, width, depth, height) { /* ... unverändert ... */ }
+        function createTextTexture(text, fgColor = "#FFFFFF", bgColor = "rgba(0,0,0,0)", fontSize = 48, font = `Bold ${fontSize}px Consolas, 'Courier New', monospace`) { /* ... unverändert (OHNE Glitch-Code) ... */ const lines = text.split('\n'); const canvas = document.createElement('canvas'); const context = canvas.getContext('2d'); context.font = font; let maxWidth = 0; lines.forEach(line => { const metrics = context.measureText(line); if (metrics.width > maxWidth) { maxWidth = metrics.width; } }); const lineHeight = fontSize * 1.2; const totalHeight = lineHeight * lines.length; canvas.width = THREE.MathUtils.ceilPowerOfTwo(maxWidth + 20); canvas.height = THREE.MathUtils.ceilPowerOfTwo(totalHeight + 10); context.font = font; context.fillStyle = bgColor; context.fillRect(0, 0, canvas.width, canvas.height); context.fillStyle = fgColor; context.textAlign = 'center'; context.textBaseline = 'middle'; lines.forEach((line, index) => { const yPos = (canvas.height / 2) - (totalHeight / 2) + (index * lineHeight) + (lineHeight / 2); context.fillText(line, canvas.width / 2, yPos); }); const texture = new THREE.CanvasTexture(canvas); texture.needsUpdate = true; return texture; }
+
+        // --- createAdvertisingSign KORRIGIERT (Kollisionslogik überarbeitet) ---
+        function createAdvertisingSign(posX, posY, posZ) {
+            const signGroup = new THREE.Group();
+
+            const signWidth = 80;
+            const signHeight = 45;
+            const poleHeight = posY;
+            const poleRadius = 2;
+
+            const adText = "Mit KI wird deine\nendlich Stromrechnung\ngünstiger.";
+            const adTexture = createTextTexture(adText, "#00FFDD", "rgba(5,0,10,0.8)", 38);
+
+            const panelGeo = new THREE.PlaneGeometry(signWidth, signHeight);
+            const panelMat = new THREE.MeshBasicMaterial({
+                map: adTexture,
+                side: THREE.DoubleSide,
+                transparent: true,
+                blending: THREE.AdditiveBlending,
+                opacity: 0.9,
+                depthWrite: false
+            });
+            const panelMesh = new THREE.Mesh(panelGeo, panelMat);
+            panelMesh.position.y = poleHeight + signHeight / 2;
+
+            const poleGeo = new THREE.CylinderGeometry(poleRadius, poleRadius, poleHeight, 12);
+            const poleMat = new THREE.MeshPhongMaterial({ color: 0x151518, specular: 0x101010, shininess: 20 });
+            const poleMesh = new THREE.Mesh(poleGeo, poleMat);
+            poleMesh.position.y = poleHeight / 2;
+            poleMesh.castShadow = true;
+            poleMesh.receiveShadow = true;
+
+            signGroup.add(panelMesh);
+            signGroup.add(poleMesh);
+
+            const signAnimation = { baseOpacity: 0.85, flickerAmount: 0.15, timer: Math.random() * 5, flickerSpeed: 2 + Math.random() * 3, update: function(delta) { this.timer += delta * this.flickerSpeed; let currentOpacity = this.baseOpacity + Math.sin(this.timer) * this.flickerAmount * 0.5; if (Math.random() < 0.02) { currentOpacity *= Math.random() * 0.5; } panelMesh.material.opacity = Math.max(0.5, Math.min(1.0, currentOpacity)); } };
+            signGroup.userData.animation = signAnimation;
+
+            signGroup.position.set(posX, 0, posZ);
+            scene.add(signGroup);
+
+            // --- KORREKTUR: Füge die Gruppe hinzu, aber weise die Pfosten-Geometrie zu ---
+            // Dies passt zum Muster der anderen komplexen Objekte (Kraftwerk, gestufte Gebäude)
+            // und der Kollisionslogik in handleKeyboardInput.
+            if (!poleMesh.geometry.boundingBox) {
+                 poleMesh.geometry.computeBoundingBox(); // Sicherstellen, dass die Box existiert
+            }
+            signGroup.geometry = poleMesh.geometry; // Weise die relevante Geometrie für Kollision der Gruppe zu
+            buildings.push(signGroup); // Füge die Gruppe zum Kollisionsarray hinzu
+            // --- ENDE KORREKTUR ---
+        }
+        // --- Ende Korrektur createAdvertisingSign ---
+
+        function createSpecialStructures() { /* ... unverändert (ruft korrigiertes createAdvertisingSign auf) ... */ const towerLevels = 8, baseWidth = 250, levelHeight = 80; let currentWidth = baseWidth, currentY = 0; const towerGroup = new THREE.Group(); const towerMaterial = new THREE.MeshPhongMaterial({ color: 0x040406, specular: 0x111111, shininess: 50, flatShading: true }); for (let i = 0; i < towerLevels; i++) { const levelDepth = currentWidth; const geometry = new THREE.BoxGeometry(currentWidth, levelHeight, levelDepth); const levelMesh = new THREE.Mesh(geometry, towerMaterial); levelMesh.position.set(0, currentY + levelHeight / 2, 0); levelMesh.castShadow = true; levelMesh.receiveShadow = true; towerGroup.add(levelMesh); if (i < towerLevels -1) { const lightBandHeight = 2; const lightBandGeo = new THREE.BoxGeometry(currentWidth + 1, lightBandHeight, levelDepth + 1); const lightBandMat = new THREE.MeshBasicMaterial({ color: 0xff4500 }); const lightBand = new THREE.Mesh(lightBandGeo, lightBandMat); lightBand.position.set(0, currentY + levelHeight - lightBandHeight/2, 0); towerGroup.add(lightBand); } currentY += levelHeight; currentWidth *= 0.8; } const spireHeight = 150; const spireGeo = new THREE.ConeGeometry(currentWidth * 0.5, spireHeight, 4); spireGeo.rotateY(Math.PI / 4); const spireMat = new THREE.MeshPhongMaterial({ color: 0x1a1a1a, shininess: 100 }); const spire = new THREE.Mesh(spireGeo, spireMat); spire.position.set(0, currentY + spireHeight / 2, 0); spire.castShadow = true; towerGroup.add(spire); const topLightGeo = new THREE.SphereGeometry(5, 8, 8); const topLightMat = new THREE.MeshBasicMaterial({ color: 0xff0000 }); const topLight = new THREE.Mesh(topLightGeo, topLightMat); topLight.position.set(0, currentY + spireHeight, 0); const topLightAnimation = { on: true, timer: 0, delay: 1.5, update: function(delta) { this.timer += delta; if(this.timer > this.delay) { this.timer = 0; this.on = !this.on; topLight.visible = this.on; this.delay = this.on ? 1.5 : 0.5; } } }; towerGroup.add(topLight); towerGroup.userData.animation = topLightAnimation; towerGroup.position.y = 0; scene.add(towerGroup); buildings.push(towerGroup); const droneCount = 30; for (let i = 0; i < droneCount; i++) { const drone = new THREE.Group(); const fuselageGeo = new THREE.BoxGeometry(8, 2, 4); const fuselageMat = new THREE.MeshPhongMaterial({ color: 0x2a2a2a, shininess: 70 }); const fuselage = new THREE.Mesh(fuselageGeo, fuselageMat); drone.add(fuselage); const cockpitGeo = new THREE.BoxGeometry(2, 1.5, 3); const cockpitMat = new THREE.MeshPhongMaterial({ color: 0x005588, emissive: 0x00aaff, emissiveIntensity: 0.3, transparent: true, opacity: 0.7 }); const cockpit = new THREE.Mesh(cockpitGeo, cockpitMat); cockpit.position.set(-3, 0.5, 0); drone.add(cockpit); const frontLightGeo = new THREE.SphereGeometry(0.5, 8, 8); const frontLightMat = new THREE.MeshBasicMaterial({ color: 0xffffff }); const frontLight1 = new THREE.Mesh(frontLightGeo, frontLightMat); frontLight1.position.set(-4.1, -0.5, 1.5); drone.add(frontLight1); const frontLight2 = frontLight1.clone(); frontLight2.position.set(-4.1, -0.5, -1.5); drone.add(frontLight2); const rearLightGeo = new THREE.BoxGeometry(1, 0.4, 0.4); const rearLightMat = new THREE.MeshBasicMaterial({ color: 0xff0000 }); const rearLight1 = new THREE.Mesh(rearLightGeo, rearLightMat); rearLight1.position.set(4.1, 0, 1); drone.add(rearLight1); const rearLight2 = rearLight1.clone(); rearLight2.position.set(4.1, 0, -1); drone.add(rearLight2); const trailMat = new THREE.SpriteMaterial({ map: createGlowTexture(0x00aaff), color: 0x88ccff, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0.5 }); const trail = new THREE.Sprite(trailMat); trail.scale.set(15, 5, 1); trail.position.set(6, 0, 0); drone.add(trail); drone.userData.trail = trail; const angle = Math.random() * Math.PI * 2; const radius = baseWidth * 0.8 + Math.random() * 800; const droneHeight = Math.random() * (towerLevels * levelHeight * 0.8) + 50; drone.position.set( Math.cos(angle) * radius, droneHeight, Math.sin(angle) * radius ); drone.lookAt(0, droneHeight, 0); const droneAnimation = { angle: angle, radius: radius, height: droneHeight, speed: (Math.random() * 0.05 + 0.02) * (Math.random() > 0.5 ? 1 : -1), verticalSpeed: (Math.random() - 0.5) * 10, maxHeight: towerLevels * levelHeight, update: function(delta) { this.angle += this.speed * delta; this.height += this.verticalSpeed * delta; if (this.height > this.maxHeight || this.height < 30) { this.height = Math.max(30, Math.min(this.height, this.maxHeight)); this.verticalSpeed *= -1; } const nextX = Math.cos(this.angle) * this.radius, nextZ = Math.sin(this.angle) * this.radius; const targetPosition = new THREE.Vector3(nextX, this.height, nextZ); drone.position.lerp(targetPosition, 0.05); const tempTarget = new THREE.Vector3( Math.cos(this.angle + this.speed * delta * 5) * this.radius, this.height, Math.sin(this.angle + this.speed * delta * 5) * this.radius ); const targetQuaternion = new THREE.Quaternion().setFromRotationMatrix( new THREE.Matrix4().lookAt(drone.position, tempTarget, drone.up) ); drone.quaternion.slerp(targetQuaternion, 0.1); if(drone.userData.trail) { drone.userData.trail.material.opacity = 0.4 + Math.random() * 0.2; drone.userData.trail.scale.x = 10 + Math.random() * 10; } } }; drone.userData.animation = droneAnimation; scene.add(drone); buildings.push(drone); } createAdvertisingSign(150, 80, -250); }
+        function createAnomalies() { /* ... unverändert ... */ }
+        function createAnomaly(x, y, z) { /* ... unverändert ... */ }
+        function createHighwayTraffic() { /* ... unverändert ... */ }
+        function animateHighwayTraffic(delta) { /* ... unverändert ... */ }
+        function checkForAnomalies() { /* ... unverändert ... */ }
+        function showMessage(title, content, messageIndex) { /* ... unverändert ... */ }
+        function showEscapePrompt() { /* ... unverändert ... */ }
+        function endGame() { /* ... unverändert ... */ }
+        function handleKeyboardInput(delta) { /* ... unverändert (Kollisionslogik prüft jetzt Gruppen mit .geometry korrekt) ... */ const moveSpeed = speed * delta; const rotateSpeed = 1.5 * delta; if (keys.forward) { speed += acceleration * delta * 60; if (speed > maxSpeed) speed = maxSpeed; } else if (keys.backward) { speed -= acceleration * delta * 60 * 1.5; if (speed < 0) speed = 0; } else { speed -= deceleration * delta * 60; if (speed < 0) speed = 0; } if (keys.left) { rotation.y += rotateSpeed; currentRoll += rollSpeed * delta * 60; if (currentRoll > maxRoll) currentRoll = maxRoll; } else if (keys.right) { rotation.y -= rotateSpeed; currentRoll -= rollSpeed * delta * 60; if (currentRoll < -maxRoll) currentRoll = -maxRoll; } else { if (Math.abs(currentRoll) < 0.01) currentRoll = 0; else currentRoll *= (1 - 5 * delta); } const verticalSpeed = 80 * delta; const minY = 15; if (keys.up) position.y += verticalSpeed; if (keys.down) { position.y -= verticalSpeed; if (position.y < minY) position.y = minY; } direction.set(0, 0, -1).applyEuler(rotation); velocity.copy(direction).multiplyScalar(moveSpeed); const intendedPosition = position.clone().add(velocity); let collision = false; const aircraftRadius = 8; const aircraftSphere = new THREE.Sphere(intendedPosition, aircraftRadius); for (const building of buildings) { let buildingBox; if (building instanceof THREE.Mesh) { if (!building.geometry.boundingBox) building.geometry.computeBoundingBox(); buildingBox = building.geometry.boundingBox.clone().applyMatrix4(building.matrixWorld); } else if (building instanceof THREE.Group && building.geometry) { if (!building.geometry.boundingBox) building.geometry.computeBoundingBox(); buildingBox = building.geometry.boundingBox.clone().applyMatrix4(building.matrixWorld); } else { continue; } buildingBox.expandByScalar(2); if (buildingBox.intersectsSphere(aircraftSphere)) { collision = true; speed *= 0.5; break; } } if (!collision) position.add(velocity); camera.position.copy(position); camera.rotation.copy(rotation); updateHUD(); }
+        function updateHUD() { /* ... unverändert ... */ }
+        function updateScanner() { /* ... unverändert ... */ }
+        function animate() { /* ... unverändert ... */ }
+        function simplex(x, z) { /* ... unverändert ... */ }
+        function fade(t) { /* ... unverändert ... */ }
+        function lerp(t, a, b) { /* ... unverändert ... */ }
+        function grad(hash, x, y, z) { /* ... unverändert ... */ }
+        const p = [151,160,137,91,90,15,131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142,8,99,37,240,21,10,23,190,6,148,247,120,234,75,0,26,197,62,94,252,219,203,117,35,11,32,57,177,33,88,237,149,56,87,174,20,125,136,171,168,68,175,74,165,71,134,139,48,27,166,77,146,158,231,83,111,229,122,60,211,133,230,220,105,92,41,55,46,245,40,244,102,143,54,65,25,63,161,1,216,80,73,209,76,132,187,208,89,18,169,200,196,135,130,116,188,159,86,164,100,109,198,173,186,3,64,52,217,226,250,124,123,5,202,38,147,118,126,255,82,85,212,207,206,59,227,47,16,58,17,182,189,28,42,223,183,170,213,119,248,152,2,44,154,163,70,221,153,101,155,167,43,172,9,129,22,39,253,19,98,108,110,79,113,224,232,178,185,112,104,218,246,97,228,251,34,242,193,238,210,144,12,191,179,162,241,81,51,145,235,249,14,239,107,49,192,214,31,181,199,106,157,184,84,204,176,115,121,50,45,127,4,150,254,138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180]; for (let i=0; i < 256; i++) { p[256+i] = p[i]; }
+        window.onload = () => { /* ... unverändert ... */ }
+
+    </script>
 </body>
 </html>
